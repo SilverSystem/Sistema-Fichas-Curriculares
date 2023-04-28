@@ -20,11 +20,13 @@ CREATE TYPE modalidadFormacion AS ENUM ('Presencial', 'A distancia', 'Mixta');
 CREATE TYPE userType AS ENUM ('Constructor Curricular', 'Coordinador curricular', 'Aprobador', 'Supervisor', 'Administrador', 'Presidencia');
 CREATE TYPE evaluacionSegunProposito AS ENUM ('Diagnóstica', 'Formativa', 'Sumativa');
 CREATE TYPE ubicacionTemporalEvaluacion AS ENUM ('Inicio', 'Desarrollo', 'Cierre');
+CREATE TYPE estadoUC AS ENUM ('Aprobada', 'En curso', 'Con rechazo', 'Pendiente');
 CREATE TYPE rolColectivoMesaEvaluacion AS ENUM ('COORDINACIÓN GENERAL', 'ACOMPAÑAMIENTO Y REVISIÓN', 'APOYO TÉCNICO (CONOCEDORES DEL ESTADO DEL ARTE)', 'APOYO LOGÍSTICO', 'SISTEMATIZACIÓN DE LA UNIDAD CURRICULAR');
 CREATE TYPE tipoRecursos AS ENUM ('Materiales', 'Equipos', 'Programas (software)/Aplicaciones', 'Herramientas', 'Maquinarias', 'Instrumentos', 'Equipos de Seguridad e Higiene');
 
 CREATE TABLE ficha_resumen_uc (
   id serial PRIMARY KEY,
+  estado_uc estadoUC,
   area_especifica text,
   area_ocupacional text,
   sub_area_ocupacional text,
