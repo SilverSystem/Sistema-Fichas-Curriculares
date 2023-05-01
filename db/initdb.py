@@ -9,11 +9,6 @@ password= os.getenv('DB_PASSWORD')
 host= os.getenv('DB_HOST')
 port= os.getenv('DB_PORT')
 
-# Connect to an existing database
-conn = psycopg2.connect(dbname=dbname,user=user,password=password,host=host,port=port)
-
-# Open a cursor to perform database operations
-cur = conn.cursor()
 
 query = """CREATE TYPE tipoUC AS ENUM ('Básicas/Comunes', 'Transversales/Genéricas', 'Específicas/Técnicas');
 CREATE TYPE modalidadFormacion AS ENUM ('Presencial', 'A distancia', 'Mixta');
@@ -142,22 +137,23 @@ CREATE TABLE estrategias_metodologicas_didacticas_pedagogicas (
   motivacionales text
 );"""
 
-# Execute a command: this creates a new table
-cur.execute(query)
-
-# Pass data to fill a query placeholders and let Psycopg perform
-# the correct conversion (no more SQL injections!)
-# cur.execute("INSERT INTO test (num, data) VALUES (%s, %s)",
-# ...      (100, "abc'def"))
-
-# # Query the database and obtain data as Python objects
-# cur.execute("SELECT * FROM test;")
-# cur.fetchone()
-# (1, 100, "abc'def")
-
-# Make the changes to the database persistent
-conn.commit()
-
-# Close communication with the database
-cur.close()
-conn.close()
+def postgreSQL_query(query: str, values:dict, request_type:str = ''):
+# Connect to an existing database
+  conn = psycopg2.connect(dbname=dbname,user=user,password=password,host=host,port=port)
+# Open a cursor to perform database operations
+  cur = conn.cursor()
+  if("get" in request_type):
+    cur.execute(query,values)
+    response = cur.fetchall() if (request_type == "get_all" or request_type == "get_some") else cur.fetchone()
+    cur.close()
+    conn.close()
+    return response
+  else:
+    response = cur.execute(query,values)
+    print('respuesta es',response)
+    # Make the changes to the database persistent
+    conn.commit()
+    # Close communication with the database
+    cur.close()
+    conn.close()
+    return {'success': True}
