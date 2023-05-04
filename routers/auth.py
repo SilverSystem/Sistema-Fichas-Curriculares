@@ -39,7 +39,7 @@ def verify_password(plain_password, hashed_password):
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="No se pudo validar las credenciales",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -103,11 +103,11 @@ async def login(user: User):
     if not complete_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Usuario/contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=float(access_token_expire_minutes))
     access_token = create_access_token(
         data={"sub": user.email,"user_type":complete_user['user_type']}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer","user_type":complete_user['user_type']}
