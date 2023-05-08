@@ -97,7 +97,7 @@ def sign_up(user: User):
     print(response)
     return {"exito?": response}
 
-@router.post("/login", response_model=Token)
+@router.post("/login")
 async def login(user: User):
     complete_user = authenticate_user(user.email,user.password)
     if not complete_user:
