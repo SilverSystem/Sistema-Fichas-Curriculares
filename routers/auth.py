@@ -8,6 +8,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 import os
 from dotenv import load_dotenv
+import secrets
+from libs.emails import enviar_correo
 load_dotenv()
 secret = os.getenv('JWT_SECRET')
 algorithm = os.getenv('JWT_ALGORITHM')
@@ -17,7 +19,7 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 class User(BaseModel):
     email:str
-    password:str
+    password:str | None = None
     user_type:str | None = None
     ci:int | None = None
     name:str | None = None
@@ -27,6 +29,10 @@ class Token(BaseModel):
     access_token: str
     token_type: str
   
+class ChangePswd(BaseModel):
+    email:str
+    password:str
+    codigoConfirmacion:str
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -61,7 +67,7 @@ def get_user(email: str):
     print('La respuesta de la db')
     print(response)
     if response:
-        return {'email':response[1],'password':response[2],'user_type':response[3],'ci':response[4],'name':response[5],'last_name':response[6]}
+        return {'email':response[1],'password':response[2],'user_type':response[3],'ci':response[4],'name':response[5],'last_name':response[6],'recovery_code':response[7]}
     
 def authenticate_user(email: str, password: str):
     user = get_user(email)
@@ -111,3 +117,69 @@ async def login(user: User):
         data={"sub": user.email,"user_type":complete_user['user_type']}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer","user_type":complete_user['user_type']}
+
+@router.post("/password-recovery")
+async def recovery(user: User):
+    start= 100000
+    end= 999999
+    numero_aleatorio = secrets.choice(range(start, end + 1))
+    actual_user = get_user(user.email)
+    print('el usuario encontrado')
+    print(actual_user)
+    if not actual_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario no existe en el sistema",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    query = '''UPDATE usuario SET password_recovery_code = %(recovery_code)s WHERE correo = %(email)s'''
+    values = {'email':actual_user['email'],'recovery_code':numero_aleatorio}
+    response = postgreSQL_query(query,values,'post')
+    print('La respuesta de la db al password-recovery')
+    print(response)
+    enviar_correo(actual_user['email'],'Código de Verificación','Su código de confirmación para reestablecer su contraseña es: {}'.format(numero_aleatorio))
+    return {'response':response,'codigo':numero_aleatorio,'datos_encontrados':actual_user}
+
+@router.post("/resend-email")
+async def resend(user: User):
+    start= 100000
+    end= 999999
+    numero_aleatorio = secrets.choice(range(start, end + 1))
+    actual_user = get_user(user.email)
+    if not actual_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario no existe en el sistema",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    query = '''UPDATE usuario SET password_recovery_code = %(recovery_code)s WHERE correo = %(email)s'''
+    values = {'email':actual_user['email'],'recovery_code':numero_aleatorio}
+    response = postgreSQL_query(query,values,'post')
+    print('La respuesta de la db al resend-email')
+    print(response)
+    enviar_correo(actual_user['email'],'Código de Verificación','Su código de confirmación para reestablecer su contraseña es: {}'.format(numero_aleatorio))
+    return {'response':response,'codigo':numero_aleatorio,'datos_encontrados':actual_user}
+
+@router.post("/confirm-password-recovery")
+async def confirm_recovery(user: ChangePswd):
+    actual_user = get_user(user.email)
+    if not actual_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuario no existe en el sistema",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not actual_user['recovery_code'] == user.codigoConfirmacion:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El código de recuperación de contraseña es incorrecto",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    psw = get_password_hash(user.password)
+    query = '''UPDATE usuario SET password_recovery_code = %(recovery_code)s,password = %(password)s WHERE correo = %(email)s'''
+    values = {'email':actual_user['email'],'password':psw,'recovery_code':None}
+    response = postgreSQL_query(query,values,'post')
+    print('La respuesta de la db al confirm-password-recovery')
+    print(response)
+    enviar_correo(actual_user['email'],'Cambio de contraseña - Sistema construcción curricular','Su contraseña se ha modificado recientemente')
+    return {'response':response,'datos_encontrados':actual_user}

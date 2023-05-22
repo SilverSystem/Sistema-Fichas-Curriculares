@@ -10,7 +10,7 @@ host= os.getenv('DB_HOST')
 port= os.getenv('DB_PORT')
 
 
-query = """CREATE TYPE tipoUC AS ENUM ('Básicas/Comunes', 'Transversales/Genéricas', 'Específicas/Técnicas');
+query_init = """CREATE TYPE tipoUC AS ENUM ('Básicas/Comunes', 'Transversales/Genéricas', 'Específicas/Técnicas');
 CREATE TYPE modalidadFormacion AS ENUM ('Presencial', 'A distancia', 'Mixta');
 CREATE TYPE userType AS ENUM ('Constructor Curricular', 'Coordinador curricular', 'Aprobador', 'Supervisor', 'Administrador', 'Presidencia');
 CREATE TYPE evaluacionSegunProposito AS ENUM ('Diagnóstica', 'Formativa', 'Sumativa');
@@ -150,7 +150,7 @@ def postgreSQL_query(query: str, values:dict, request_type:str = ''):
     return response
   else:
     response = cur.execute(query,values)
-    print('respuesta es',response)
+    print('respuesta de la query enviada a la db es ---->',response)
     # Make the changes to the database persistent
     conn.commit()
     # Close communication with the database
