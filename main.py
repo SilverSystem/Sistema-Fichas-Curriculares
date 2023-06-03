@@ -6,9 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 app.include_router(auth.router)
-origins = [
-    "http://localhost:8100",
-]
+origins = ['*']
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
