@@ -93,7 +93,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 @router.post("/sign-up",)
 def sign_up(user: User):
     print('Esto llego com body',user)
-    psw = get_password_hash(user['password'])
+    psw = get_password_hash(user.password)
     query = '''INSERT INTO usuario (correo, password, user_type, cedula_identidad, nombre, apellido) 
     VALUES (%(email)s, %(password)s, %(user_type)s, %(cedula_identidad)s, %(name)s, %(last_name)s);
     '''
