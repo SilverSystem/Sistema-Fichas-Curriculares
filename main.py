@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 # from dependencies import get_query_token
-from routers import auth
+from routers import auth,fichas
 from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 app.include_router(auth.router)
+app.include_router(fichas.router)
 origins = ['*']
 app.add_middleware(
     CORSMiddleware,
