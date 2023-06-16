@@ -97,7 +97,7 @@ def sign_up(user: User):
     query = '''INSERT INTO usuario (correo, password, user_type, cedula_identidad, nombre, apellido) 
     VALUES (%(email)s, %(password)s, %(user_type)s, %(cedula_identidad)s, %(name)s, %(last_name)s);
     '''
-    values = {'email':user.email, 'password':psw,'user_type':user.user_type,'cedula_identidad':user.ci,'name':user.name,'last_name':user.last_name,}
+    values = {'email':user.email, 'password':psw,'user_type':user.userType,'cedula_identidad':user.ci,'name':user.name,'last_name':user.lastName,}
     response = postgreSQL_query(query,values,'post')
     print('La respuesta de la db al sign-up')
     print(response)
