@@ -20,10 +20,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 class User(BaseModel):
     email:str
     password:str | None = None
-    user_type:str | None = None
+    userType:str | None = None
     ci:int | None = None
     name:str | None = None
-    last_name:str | None = None
+    lastName:str | None = None
 
 class Token(BaseModel):
     access_token: str
