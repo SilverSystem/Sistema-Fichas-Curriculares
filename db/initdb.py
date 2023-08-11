@@ -165,10 +165,10 @@ def postgreSQL_query(query: str, values:dict, request_type:str = ''):
 
 # uvicorn main:app --reload
 
-# Connect to an existing database
+# # Connect to an existing database
 # conn = psycopg2.connect(dbname=dbname,user=user,password=password,host=host,port=port)
 
-# # Open a cursor to perform database operations
+# # # Open a cursor to perform database operations
 # cur = conn.cursor()
 
 # query = """CREATE TYPE tipoUC AS ENUM ('Básica/Comun', 'Transversal/Genérica', 'Específica/Técnica');

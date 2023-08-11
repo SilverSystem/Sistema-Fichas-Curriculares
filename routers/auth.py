@@ -116,7 +116,7 @@ async def login(user: User):
     access_token = create_access_token(
         data={"sub": user.email,"user_type":complete_user['user_type']}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer","user_type":complete_user['user_type']}
+    return {"access_token": access_token, "token_type": "bearer","user_type":complete_user['user_type'],"name":complete_user['name'],"last_name":complete_user['last_name']}
 
 @router.post("/password-recovery")
 async def recovery(user: User):
